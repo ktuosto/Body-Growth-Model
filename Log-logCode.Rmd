@@ -1,0 +1,140 @@
+---
+title: "Growth models"
+author: "Kristen Tuosto"
+date: "2023-04-06"
+output: html_document
+---
+
+#Goal: Model growth using quadratic log-log method
+```{r}
+
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+
+
+#Read data into R
+df <- read.csv("C:/Users/ktuos/Desktop/Fake_growth_data.csv")
+
+```
+
+
+```{r}
+
+#Create new data frame with just required information (i.e., ID, Sex or Gender, Age, body measurement attempting to model)
+
+filter_sample1 <- function(df, x) {
+ x <- filter(df, Bone.Code == x) # Optional if your data is in long format, otherwise it can be dropped; to fit another data set 'Bone.Code' to the column title to be filtered from.
+ x[x==""] <- NA
+ x <- x %>% drop_na(ID, Age, MXL) #Replace with column titles for the information you would like to drop NAs 
+ x$Sex <- as.factor(x$Sex)
+ x$MXL <- as.numeric(x$MXL)
+ x$Age <- as.numeric(x$Age)
+ x <- data.frame(x$ID, x$Sex, x$Age, x$MXL)
+ x <- x %>% rename("ID" = "x.ID",
+                   "sex" = "x.Sex",
+                   "age" = "x.Age",
+                   "MXL" = "x.MXL")
+ return(data.frame(x))
+}
+
+df_new <- filter_sample1(df, 'Tibia')
+
+female_df <- subset(df_new, sex == 'F')
+```
+
+```{r}
+#Basic loess plots just to visualize trends before modeling growth
+
+#Loess plots with combined sex
+loess_plots_sex <- function(df, bm){ # bm needs to be df$bm
+  plot <- ggplot(data= df, aes(x = age, y = bm, color = sex)) + geom_smooth(method = 'loess', formula = 'y ~ x') + geom_point(aes(color=sex), size = 3) + theme_classic() + labs(x="Age (years)") + scale_colour_discrete(labels = c("Female", "Male")) + labs(color = "Sex") 
+  return(plot)
+} 
+
+#Loess plots sex separated 
+loess_plots <- function(df, bm){ # bm needs to be df$bm
+  plot <- ggplot(data= df, aes(x = age, y = bm)) + geom_smooth(method = 'loess', formula = 'y ~ x') + geom_point(size = 3) + theme_classic() + labs(x="Age (years)")
+  return(plot)
+} 
+
+#Return plots can be further modified with ggplot codes
+
+```
+
+#Quadratic Log-Log regression 
+
+```{r}
+#Quadratic log-log regression - sex considered together
+
+loglog_sex <- function(df, dm) {
+  loglog <- lm(log(dm) ~ poly(log(age), 2, raw = TRUE) + sex, data = df) 
+  print(summary(loglog))
+  print(plot(loglog))
+  intercept_loglog <- loglog$coefficients[1]
+  logage_loglog <- loglog$coefficients[2]
+  logage2_loglog <- loglog$coefficients[3]
+  
+  plotlog <- function(x) {
+    exp(intercept_loglog + log(x)*logage_loglog + log(x)^2*logage2_loglog)} #Function from Levy et al., 2022, plots quadratic log-log line
+  
+  plot <- ggplot(data = df, aes(x=age, y=dm)) + 
+    geom_point(aes(color=sex), size = 3) + 
+    stat_function(fun = plotlog) + 
+    labs(x='Age (years)', title='log(y) ~ log(x) + log(x)^2') + 
+    theme_classic() +      
+    scale_x_continuous(n.breaks=10) + 
+    scale_colour_discrete(labels = c("Female", "Male")) + 
+    labs(color = "Sex")
+    return(plot)
+}
+ 
+#Return plots can be further modified with ggplot codes
+
+#Quadratic log-log regression for samples with sex separated and not considered 
+
+loglog <- function(df, dm) {
+  loglog <- lm(log(dm) ~ poly(log(age), 2, raw = TRUE), data = df)
+  print(summary(loglog))
+  print(plot(loglog))
+  intercept <- loglog$coefficients[1]
+  logage <- loglog$coefficients[2]
+  logage2 <- loglog$coefficients[3]
+  
+  plotlog <- function(x) {
+    exp(intercept + log(x)*logage + log(x)^2*logage2)} #Function from Levy et al., 2022, plots quadratic log-log line
+  
+  plot <- ggplot(data = df, aes(x=age, y=dm)) + 
+    geom_point(size = 3) + 
+    stat_function(fun = plotlog) + 
+    labs(x='Age (years)', title='log(y) ~ log(x) + log(x)^2') + 
+    theme_classic() +      
+    scale_x_continuous(n.breaks=10) 
+    return(plot)
+}
+
+#Return plots can be further modified with ggplot codes
+
+```
+
+#Code test for sex combined functions
+```{r}
+loess_plots_sex(df_new, df_new$MXL)
+
+tibiaplot <- loglog_sex(df_new, df_new$MXL)
+
+tibiaplot + labs(y="MXL")
+```
+#Code test
+```{r}
+loess_plots(female_df, female_df$MXL)
+
+loglog(female_df, female_df$MXL)
+```
+
+
+
+
+
+
+
