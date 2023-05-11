@@ -25,4 +25,4 @@ This code includes:
 4. Functions for a loess plot, by combined sex and separated sex. 
 
 # About data set
-The data provide is fake bone measurement data that is based on data that I have collected in the past. 
+The data provide is fake bone measurements that is based on data that I have collected in the past. 
