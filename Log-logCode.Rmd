@@ -14,14 +14,12 @@ library(tidyverse)
 
 
 #Read data into R
-df <- read.csv("C:/Users/ktuos/Desktop/Fake_growth_data.csv")
+df <- read.csv("~Fake_growth_data.csv")
 
 ```
 
-
+#Create new data frame with just required information (i.e., ID, Sex or Gender, Age, body measurement attempting to model
 ```{r}
-
-#Create new data frame with just required information (i.e., ID, Sex or Gender, Age, body measurement attempting to model)
 
 filter_sample1 <- function(df, x) {
  x <- filter(df, Bone.Code == x) # Optional if your data is in long format, otherwise it can be dropped; to fit another data set 'Bone.Code' to the column title to be filtered from.
@@ -30,10 +28,11 @@ filter_sample1 <- function(df, x) {
  x$Sex <- as.factor(x$Sex)
  x$MXL <- as.numeric(x$MXL)
  x$Age <- as.numeric(x$Age)
- x <- data.frame(x$ID, x$Sex, x$Age, x$MXL)
+ x <- data.frame(x$ID, x$Sex, x$Age, x$MXL, x$Age_Class)
  x <- x %>% rename("ID" = "x.ID",
                    "sex" = "x.Sex",
                    "age" = "x.Age",
+                   "age_class" = "x.Age_Class",
                    "MXL" = "x.MXL")
  return(data.frame(x))
 }
@@ -41,25 +40,26 @@ filter_sample1 <- function(df, x) {
 df_new <- filter_sample1(df, 'Tibia')
 ```
 
-#Filter by sex and age class
-Filter for means, min, and max 
+# Means, min, and max function by age class and sex
+
 ```{r}
 
 # Filter the data frame by sex and age groups
-female_AD <- subset(tibia, sex == "F" & class == "AD")
-female_SAD <- subset(tibia, sex == "F" & class == "S-AD")
-female_JUV <- subset(tibia, sex == "F" & class == "JUV")
-female_INF <- subset(tibia, sex == "F" & class == "INF")
-male_AD <- subset(tibia, sex == "M" & class == "AD")
-male_SAD <- subset(tibia, sex == "M" & class == "S-AD")
-male_JUV <- subset(tibia, sex == "M" & class == "JUV")
-male_INF <- subset(tibia, sex == "M" & class == "INF")
+
+female_AD <- subset(df_new, sex == "F" & class == "AD")
+female_SAD <- subset(df_new, sex == "F" & class == "S-AD")
+female_JUV <- subset(df_new, sex == "F" & class == "JUV")
+female_INF <- subset(df_new, sex == "F" & class == "INF")
+male_AD <- subset(df_new, sex == "M" & class == "AD")
+male_SAD <- subset(df_new, sex == "M" & class == "S-AD")
+male_JUV <- subset(df_new, sex == "M" & class == "JUV")
+male_INF <- subset(df_new, sex == "M" & class == "INF")
 
 # Define the mean_max_min function
 mean_max_min <- function(df) {
-  mean_vals <- mean(df$DIL)
-  max_vals <- max(df$DIL)
-  min_vals <- min(df$DIL)
+  mean_vals <- mean(df$MXL)
+  max_vals <- max(df$MXL)
+  min_vals <- min(df$MXL)
   df_summary <- data.frame(
     mean = mean_vals,
     max = max_vals,
@@ -93,6 +93,7 @@ print(new_result_df)
 library(writexl)
 write_xlsx(new_result_df,"C:\\Users\\ktuos\\Desktop\\tibia_summary_results.xlsx")
 ```
+
 #Basic loess plots just to visualize trends before modeling growth
 ```{r}
 #Loess plots with combined sex
