@@ -5,7 +5,7 @@ date: "2023-04-06"
 output: html_document
 ---
 
-#Goal: Model growth using quadratic log-log method
+# Goal: Model growth using quadratic log-log method
 ```{r}
 
 library(dplyr)
@@ -18,7 +18,7 @@ df <- read.csv("~Fake_growth_data.csv")
 
 ```
 
-#Create new data frame with just required information (i.e., ID, Sex or Gender, Age, body measurement attempting to model
+# Create new data frame with just required information (i.e., ID, Sex or Gender, Age, body measurement attempting to model
 ```{r}
 
 filter_sample1 <- function(df, x) {
