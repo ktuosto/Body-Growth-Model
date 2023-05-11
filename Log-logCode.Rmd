@@ -39,13 +39,62 @@ filter_sample1 <- function(df, x) {
 }
 
 df_new <- filter_sample1(df, 'Tibia')
-
-female_df <- subset(df_new, sex == 'F')
 ```
 
+#Filter by sex and age class
+Filter for means, min, and max 
 ```{r}
-#Basic loess plots just to visualize trends before modeling growth
 
+# Filter the data frame by sex and age groups
+female_AD <- subset(tibia, sex == "F" & class == "AD")
+female_SAD <- subset(tibia, sex == "F" & class == "S-AD")
+female_JUV <- subset(tibia, sex == "F" & class == "JUV")
+female_INF <- subset(tibia, sex == "F" & class == "INF")
+male_AD <- subset(tibia, sex == "M" & class == "AD")
+male_SAD <- subset(tibia, sex == "M" & class == "S-AD")
+male_JUV <- subset(tibia, sex == "M" & class == "JUV")
+male_INF <- subset(tibia, sex == "M" & class == "INF")
+
+# Define the mean_max_min function
+mean_max_min <- function(df) {
+  mean_vals <- mean(df$DIL)
+  max_vals <- max(df$DIL)
+  min_vals <- min(df$DIL)
+  df_summary <- data.frame(
+    mean = mean_vals,
+    max = max_vals,
+    min = min_vals
+  )
+  return(df_summary)
+}
+
+# Create a list of data frames
+data_frames <- list(female_AD, female_SAD, female_JUV, female_INF, male_AD, male_SAD, male_JUV, male_INF )
+
+# Apply the mean_max_min function to each data frame in the list
+result_list <- lapply(data_frames, mean_max_min)
+
+# Combine the summary data frames into a single data frame
+result_df <- bind_rows(result_list)
+
+# Add new column & combine with date frame
+label <- c("female_AD", "female_SAD", "female_JUV", "female_INF", "male_AD", "male_SAD", "male_JUV", "male_INF")
+
+result_df_label <- cbind(result_df, label)
+
+#Relocation label column
+new_result_df <- result_df_label %>% relocate(label)
+
+
+# Print the final result
+print(new_result_df)
+
+# Write an excel sheet
+library(writexl)
+write_xlsx(new_result_df,"C:\\Users\\ktuos\\Desktop\\tibia_summary_results.xlsx")
+```
+#Basic loess plots just to visualize trends before modeling growth
+```{r}
 #Loess plots with combined sex
 loess_plots_sex <- function(df, bm){ # bm needs to be df$bm
   plot <- ggplot(data= df, aes(x = age, y = bm, color = sex)) + geom_smooth(method = 'loess', formula = 'y ~ x') + geom_point(aes(color=sex), size = 3) + theme_classic() + labs(x="Age (years)") + scale_colour_discrete(labels = c("Female", "Male")) + labs(color = "Sex") 
@@ -63,9 +112,8 @@ loess_plots <- function(df, bm){ # bm needs to be df$bm
 ```
 
 #Quadratic Log-Log regression 
-
+Quadratic log-log regression - sex considered together
 ```{r}
-#Quadratic log-log regression - sex considered together
 
 loglog_sex <- function(df, dm) {
   loglog <- lm(log(dm) ~ poly(log(age), 2, raw = TRUE) + sex, data = df) 
@@ -90,8 +138,10 @@ loglog_sex <- function(df, dm) {
 }
  
 #Return plots can be further modified with ggplot codes
+```
 
 #Quadratic log-log regression for samples with sex separated and not considered 
+```{r}
 
 loglog <- function(df, dm) {
   loglog <- lm(log(dm) ~ poly(log(age), 2, raw = TRUE), data = df)
