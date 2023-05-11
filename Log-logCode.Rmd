@@ -5,26 +5,27 @@ date: "2023-04-06"
 output: html_document
 ---
 
-# Goal: Model growth using quadratic log-log method
-```{r}
-
+# Model growth using quadratic log-log method
+```{r read in data set}
+#load libraries
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
 
 
-#Read data into R
+# Read data into R
 df <- read.csv("~Fake_growth_data.csv")
 
 ```
 
 # Create new data frame with just required information (i.e., ID, Sex or Gender, Age, body measurement attempting to model
-```{r}
+Optional code, fake growth data provided does not require it, but function was used for the real data set
+```{r Filter data set}
 
 filter_sample1 <- function(df, x) {
  x <- filter(df, Bone.Code == x) # Optional if your data is in long format, otherwise it can be dropped; to fit another data set 'Bone.Code' to the column title to be filtered from.
  x[x==""] <- NA
- x <- x %>% drop_na(ID, Age, MXL) #Replace with column titles for the information you would like to drop NAs 
+ x <- x %>% drop_na(ID, Age, MXL) # Replace with column titles for the information you would like to drop NAs 
  x$Sex <- as.factor(x$Sex)
  x$MXL <- as.numeric(x$MXL)
  x$Age <- as.numeric(x$Age)
@@ -40,20 +41,25 @@ filter_sample1 <- function(df, x) {
 df_new <- filter_sample1(df, 'Tibia')
 ```
 
-# Means, min, and max function by age class and sex
+```{r Sex only plot}
+#For one sex only code use this code to filter
+female_df <- subset(df_new, sex == 'F')
+male_df <- subset(df_new, sex == 'M')
+```
 
-```{r}
+# Means, min, and max function by age class and sex
+```{r Mean, min, max}
 
 # Filter the data frame by sex and age groups
 
-female_AD <- subset(df_new, sex == "F" & class == "AD")
-female_SAD <- subset(df_new, sex == "F" & class == "S-AD")
-female_JUV <- subset(df_new, sex == "F" & class == "JUV")
-female_INF <- subset(df_new, sex == "F" & class == "INF")
-male_AD <- subset(df_new, sex == "M" & class == "AD")
-male_SAD <- subset(df_new, sex == "M" & class == "S-AD")
-male_JUV <- subset(df_new, sex == "M" & class == "JUV")
-male_INF <- subset(df_new, sex == "M" & class == "INF")
+female_AD <- subset(df, sex == "F" & class == "AD") # If used code above to filter data, replace df with df_new
+female_SAD <- subset(df, sex == "F" & class == "S-AD")
+female_JUV <- subset(df, sex == "F" & class == "JUV")
+female_INF <- subset(df, sex == "F" & class == "INF")
+male_AD <- subset(df, sex == "M" & class == "AD")
+male_SAD <- subset(df, sex == "M" & class == "S-AD")
+male_JUV <- subset(df, sex == "M" & class == "JUV")
+male_INF <- subset(df, sex == "M" & class == "INF")
 
 # Define the mean_max_min function
 mean_max_min <- function(df) {
@@ -89,13 +95,10 @@ new_result_df <- result_df_label %>% relocate(label)
 # Print the final result
 print(new_result_df)
 
-# Write an excel sheet
-library(writexl)
-write_xlsx(new_result_df,"C:\\Users\\ktuos\\Desktop\\tibia_summary_results.xlsx")
 ```
 
 #Basic loess plots just to visualize trends before modeling growth
-```{r}
+```{r Loess plots}
 #Loess plots with combined sex
 loess_plots_sex <- function(df, bm){ # bm needs to be df$bm
   plot <- ggplot(data= df, aes(x = age, y = bm, color = sex)) + geom_smooth(method = 'loess', formula = 'y ~ x') + geom_point(aes(color=sex), size = 3) + theme_classic() + labs(x="Age (years)") + scale_colour_discrete(labels = c("Female", "Male")) + labs(color = "Sex") 
@@ -114,10 +117,10 @@ loess_plots <- function(df, bm){ # bm needs to be df$bm
 
 #Quadratic Log-Log regression 
 Quadratic log-log regression - sex considered together
-```{r}
+```{r Loglog sex combined}
 
-loglog_sex <- function(df, dm) {
-  loglog <- lm(log(dm) ~ poly(log(age), 2, raw = TRUE) + sex, data = df) 
+loglog_sex <- function(df, bm) {
+  loglog <- lm(log(bm) ~ poly(log(age), 2, raw = TRUE) + sex, data = df) 
   print(summary(loglog))
   print(plot(loglog))
   intercept_loglog <- loglog$coefficients[1]
@@ -127,7 +130,7 @@ loglog_sex <- function(df, dm) {
   plotlog <- function(x) {
     exp(intercept_loglog + log(x)*logage_loglog + log(x)^2*logage2_loglog)} #Function from Levy et al., 2022, plots quadratic log-log line
   
-  plot <- ggplot(data = df, aes(x=age, y=dm)) + 
+  plot <- ggplot(data = df, aes(x=age, y=bm)) + 
     geom_point(aes(color=sex), size = 3) + 
     stat_function(fun = plotlog) + 
     labs(x='Age (years)', title='log(y) ~ log(x) + log(x)^2') + 
@@ -142,10 +145,10 @@ loglog_sex <- function(df, dm) {
 ```
 
 #Quadratic log-log regression for samples with sex separated and not considered 
-```{r}
+```{r loglog sex separated}
 
-loglog <- function(df, dm) {
-  loglog <- lm(log(dm) ~ poly(log(age), 2, raw = TRUE), data = df)
+loglog <- function(df, bm) {
+  loglog <- lm(log(bm) ~ poly(log(age), 2, raw = TRUE), data = df)
   print(summary(loglog))
   print(plot(loglog))
   intercept <- loglog$coefficients[1]
@@ -172,11 +175,11 @@ loglog <- function(df, dm) {
 ```{r}
 loess_plots_sex(df_new, df_new$MXL)
 
-tibiaplot <- loglog_sex(df_new, df_new$MXL)
+boneplot <- loglog_sex(df_new, df_new$MXL)
 
-tibiaplot + labs(y="MXL")
+boneplot + labs(y="MXL")
 ```
-#Code test
+#Code test sex separated 
 ```{r}
 loess_plots(female_df, female_df$MXL)
 
