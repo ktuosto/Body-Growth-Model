@@ -14,7 +14,7 @@ To consider changes in body size with age during development, or growth, this co
 
 The quadratic log-log model log transforms both age and the response variable. 
 
-We have to model bone growth (or body size growth) as a quadratic formula because while bones/body size does increase with age it is not a linear growth or a contiunous growth, but at some point in time the growth plateaus and even decreases with age (i.e., at elderly ages). 
+We have to model bone growth (or body size growth) as a quadratic formula because while bones/body size does increase with age it is not a linear growth or a continuous growth, but at some point in time the growth plateaus and even decreases with age (i.e., at elderly ages). 
 
 # Code breakdown 
 
