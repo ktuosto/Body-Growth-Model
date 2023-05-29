@@ -25,4 +25,4 @@ This code includes:
 4. Functions for a loess plot, by combined sex and separated sex. 
 
 # About data set
-The data provide is fake bone measurements that is based on data that I have collected in the past. 
+The data set provided to conducted the analysis is simulated data based on real existing data sets to explore skeletal growth patterns. The simulated data closely resembled actual data in terms of distribution and characteristics, allowing for comprehensive analysis and insights. This approach facilitated the exploration of various scenarios and provided valuable insights for decision-making and planning
