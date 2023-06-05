@@ -25,4 +25,16 @@ This code includes:
 4. Functions for a loess plot, by combined sex and separated sex. 
 
 # About data set
-The data set provided to conducted the analysis is simulated data based on real existing data sets to explore skeletal growth patterns. The simulated data closely resembled actual data in terms of distribution and characteristics, allowing for comprehensive analysis and insights. This approach facilitated the exploration of various scenarios and provided valuable insights for decision-making and planning
+The data set provided to conducted the analysis is simulated data based on real existing data sets to explore skeletal growth patterns. The simulated data closely resembled actual data in terms of distribution and characteristics, allowing for comprehensive analysis and insights. This approach facilitated the exploration of various scenarios and provided valuable insights for decision-making and planning.
+
+# Usage
+
+While this code was developed for modeling bone growth/bone size, this code can also be used for:
+
+- **Healthcare and Pharmaceuticals:** Understanding the growth patterns of bone or body size can be relevant in medical research, drug development, or treatment planning. Pharmaceutical companies, healthcare providers, and research institutions could leverage this analysis to gain insights into growth patterns and inform medical decisions.
+
+- **Sports and Athletics:** In sports, understanding the relationship between age and bone/body size growth can be crucial for talent identification, training programs, and injury prevention. Sports organizations, teams, and trainers could utilize this analysis to better understand the growth trajectories of athletes and optimize performance.
+
+- **Anthropological or Archaeological Studies:** Anthropological or archaeological research often involves studying the growth and development of human populations over time. Your analysis could contribute to these fields by providing insights into bone or body size changes across different age groups or populations.
+
+- **Biomechanics and Ergonomics:** Knowledge of bone/body size growth patterns can be applied in fields related to biomechanics and ergonomics. For example, designing ergonomic products, creating appropriate work environments, or optimizing equipment sizes for specific age groups can benefit from understanding growth patterns.
